@@ -1,83 +1,84 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agrath Image Generator</title>
+    <title>Генератор изображений</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #1a1a2e; /* Dark background */
-            color: #e0e0e0; /* Light text */
+            background-color: #1a1a2e;
+            color: #e0e0e0;
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start; /* Changed to flex-start for scrolling */
             min-height: 100vh;
             padding: 20px;
             box-sizing: border-box;
         }
         .container {
-            background-color: #2a003f; /* Darker purple */
+            background-color: #2a003f;
             border-radius: 15px;
             padding: 30px;
             box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
-            max-width: 700px;
+            max-width: 1200px;
             width: 100%;
             text-align: center;
         }
         .title {
-            font-size: 2.25rem; /* text-4xl */
-            font-weight: 700; /* font-bold */
-            color: #d1b0ff; /* Light purple */
-            margin-bottom: 20px;
+            font-size: 2.25rem;
+            font-weight: 700;
+            color: #d1b0ff;
+            margin-bottom: 10px;
             text-shadow: 0 0 10px rgba(209, 176, 255, 0.6);
         }
         .description {
-            font-size: 1rem; /* text-base */
-            color: #b0a0d0; /* Muted purple */
+            font-size: 1rem;
+            color: #b0a0d0;
             margin-bottom: 30px;
             line-height: 1.6;
         }
         .input-group {
             margin-bottom: 20px;
             text-align: left;
+            position: relative;
         }
         .input-group label {
-            display: block;
+            display: flex;
+            align-items: center;
             margin-bottom: 8px;
             font-weight: 600;
             color: #d1b0ff;
         }
-        .input-group textarea,
-        .input-group input[type="text"] {
+        .custom-select, .input-group textarea, .input-group input[type="text"] {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             border-radius: 8px;
             border: 1px solid #4a005f;
             background-color: #0d0d1a;
             color: #e0e0e0;
+            box-sizing: border-box;
+        }
+        .input-group textarea {
             resize: vertical;
-            min-height: 100px;
-            box-sizing: border-box; /* Ensures padding is included in the width */
+            min-height: 80px;
         }
-        .input-group input[type="text"] {
-            min-height: auto;
-            height: auto;
-        }
-        .button-group {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-top: 20px;
+        .custom-select {
+            appearance: none;
+            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23d1b0ff%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E');
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 0.8em;
+            padding-right: 2.5rem;
         }
         .image-container {
-            min-height: 300px; /* Minimum height for image area */
+            min-height: 300px;
             display: flex;
             justify-content: center;
             align-items: center;
-            background-color: #0d0d1a; /* Even darker background for image */
+            background-color: #0d0d1a;
             border-radius: 10px;
             overflow: hidden;
             margin-bottom: 20px;
@@ -88,7 +89,7 @@
             max-height: 100%;
             border-radius: 8px;
             object-fit: contain;
-            display: none; /* Hidden until loaded */
+            display: none;
         }
         .loading-spinner {
             border: 4px solid rgba(255, 255, 255, 0.3);
@@ -102,7 +103,7 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        .generate-button, .reset-button {
+        .action-button {
             background-image: linear-gradient(to right, #6a0578 0%, #8c00b0 50%, #6a0578 100%);
             color: white;
             padding: 12px 25px;
@@ -114,18 +115,15 @@
             transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
             background-size: 200% auto;
+            width: 100%;
         }
-        .reset-button {
-            background-image: linear-gradient(to right, #4b0060 0%, #6a0578 50%, #4b0060 100%);
-        }
-        .generate-button:hover, .reset-button:hover {
-            background-position: right center; /* change the direction of the change here */
+        .action-button:hover {
+            background-position: right center;
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
             transform: translateY(-2px);
         }
-        .generate-button:active, .reset-button:active {
-            transform: translateY(0);
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        .secondary-button {
+             background-image: linear-gradient(to right, #4b0060 0%, #6a0578 50%, #4b0060 100%);
         }
         .message-box {
             background-color: #4a005f;
@@ -136,95 +134,562 @@
             font-size: 0.9rem;
             display: none;
         }
+        /* Tooltip styles */
+        .tooltip-icon {
+            margin-left: 8px;
+            color: #d1b0ff;
+            cursor: help;
+            border: 1px solid #d1b0ff;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 12px;
+        }
+        .tooltip-text {
+            visibility: hidden;
+            width: 220px;
+            background-color: #1a1a2e;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px 10px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -110px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.8rem;
+            font-weight: 400;
+            border: 1px solid #d1b0ff;
+        }
+        .input-group:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+        /* History styles */
+        .history-container {
+            margin-top: 30px;
+        }
+        .history-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 10px;
+        }
+        .history-item {
+            cursor: pointer;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 2px solid transparent;
+            transition: border-color 0.3s;
+        }
+        .history-item:hover {
+            border-color: #d1b0ff;
+        }
+        .history-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1 class="title">Сгенерировать изображение</h1>
-        <p class="description">
-            Введите промпт и API ключ ниже, затем нажмите "Сгенерировать изображение".
-            Нажмите "Сбросить промпт", чтобы восстановить промпт по умолчанию.
-        </p>
+        <h1 class="title">Профессиональный генератор изображений</h1>
+        <p class="description">Комбинируйте стили и описывайте детали для создания уникального изображения.</p>
+        
+        <!-- Мастер-стиль -->
+         <div class="input-group mb-6">
+            <label for="masterStyleSelect" class="text-lg">Мастер-стиль: <span class="tooltip-icon" title="Выбор готового профиля, который автоматически настроит все остальные параметры.">?</span></label>
+            <select id="masterStyleSelect" class="custom-select"></select>
+        </div>
 
-        <div class="input-group">
-            <label for="promptInput">Промпт для генерации изображения:</label>
-            <textarea id="promptInput" rows="7"></textarea>
-            <div class="button-group">
-                <button id="resetPromptButton" class="reset-button">Сбросить промпт</button>
+        <!-- Блок стилей -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+             <div class="input-group">
+                <label for="baseStyleSelect">Основной стиль: <span class="tooltip-icon" title="Определяет общую эстетику изображения.">?</span></label>
+                <select id="baseStyleSelect" class="custom-select"></select>
+            </div>
+            <div class="input-group">
+                <label for="lightingStyleSelect">Освещение: <span class="tooltip-icon" title="Задает характер света и тени в сцене.">?</span></label>
+                <select id="lightingStyleSelect" class="custom-select"></select>
+            </div>
+            <div class="input-group">
+                <label for="compositionSelect">Композиция / Ракурс: <span class="tooltip-icon" title="Определяет, как 'сфотографирован' объект.">?</span></label>
+                <select id="compositionSelect" class="custom-select"></select>
+            </div>
+             <div class="input-group">
+                <label for="artistStyleSelect">Стиль художника: <span class="tooltip-icon" title="Имитация стиля известного художника.">?</span></label>
+                <select id="artistStyleSelect" class="custom-select"></select>
             </div>
         </div>
 
-        <div class="input-group">
-            <label for="apiKeyInput">Ваш API ключ:</label>
-            <input type="text" id="apiKeyInput" placeholder="Введите ваш API ключ здесь">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+            <div class="input-group">
+                <label for="genreStyleSelect">Эпоха / Жанр: <span class="tooltip-icon" title="Стилизация под определенную эпоху или жанр.">?</span></label>
+                <select id="genreStyleSelect" class="custom-select"></select>
+            </div>
+            <div class="input-group">
+                <label for="materialSelect">Материал / Техника: <span class="tooltip-icon" title="Имитация различных художественных материалов.">?</span></label>
+                <select id="materialSelect" class="custom-select"></select>
+            </div>
+            <div class="input-group">
+                <label for="colorPaletteSelect">Цветовая палитра: <span class="tooltip-icon" title="Задает общую цветовую гамму.">?</span></label>
+                <select id="colorPaletteSelect" class="custom-select"></select>
+            </div>
+            <div class="input-group">
+                <label for="atmosphereSelect">Атмосфера: <span class="tooltip-icon" title="Добавляет атмосферные эффекты.">?</span></label>
+                <select id="atmosphereSelect" class="custom-select"></select>
+            </div>
         </div>
         
-        <div class="image-container" id="imageContainer">
-            <div id="loadingSpinner" class="loading-spinner"></div>
-            <img id="generatedImage" class="generated-image" alt="Generated image of Agrath">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+            <div class="input-group">
+                <label for="cameraSelect">Камера / Объектив: <span class="tooltip-icon" title="Имитирует эффекты различных объективов.">?</span></label>
+                <select id="cameraSelect" class="custom-select"></select>
+            </div>
+            <div class="input-group">
+                <label for="effectSelect">Эффекты: <span class="tooltip-icon" title="Добавляет специальные визуальные эффекты.">?</span></label>
+                <select id="effectSelect" class="custom-select"></select>
+            </div>
+            <div class="input-group">
+                <label for="aspectRatioSelect">Соотношение сторон: <span class="tooltip-icon" title="Выбор формата итогового изображения.">?</span></label>
+                <select id="aspectRatioSelect" class="custom-select"></select>
+            </div>
         </div>
-        <button id="generateButton" class="generate-button">Сгенерировать изображение</button>
+
+        <!-- Блок пресетов -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 items-end">
+            <div class="input-group">
+                <label for="presetSelect">Загрузить пресет: <span class="tooltip-icon" title="Загружает сохраненную комбинацию стилей.">?</span></label>
+                <select id="presetSelect" class="custom-select"></select>
+            </div>
+            <div class="input-group">
+                <label for="presetNameInput">Название нового пресета:</label>
+                <input type="text" id="presetNameInput" placeholder="Например, 'Мой нуар стиль'">
+            </div>
+            <div class="input-group">
+                 <button id="savePresetButton" class="action-button secondary-button">Сохранить пресет</button>
+            </div>
+        </div>
+
+        <!-- Блок промптов -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div class="input-group">
+                <label for="descriptionInput">Позитивный промпт (что нарисовать):</label>
+                <textarea id="descriptionInput" rows="4" placeholder="Например: девушка с длинными темными волосами..."></textarea>
+            </div>
+            <div class="input-group">
+                <label for="negativePromptInput">Негативный промпт (чего избегать):</label>
+                <textarea id="negativePromptInput" rows="4" placeholder="Например: уродливые руки, лишние пальцы, текст..."></textarea>
+            </div>
+        </div>
+        
+        <!-- Блок API и Копирования -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 items-end">
+             <div class="input-group">
+                <label for="apiKeyInput">Ваш API ключ (необязательно):</label>
+                <input type="text" id="apiKeyInput" placeholder="Введите ваш API ключ здесь">
+            </div>
+            <div class="input-group">
+                <button id="copyPromptButton" class="action-button secondary-button">Копировать промпт</button>
+            </div>
+        </div>
+
+
+        <div class="image-container" id="imageContainer">
+            <div id="loadingSpinner" class="loading-spinner" style="display: none;"></div>
+            <img id="generatedImage" class="generated-image" alt="Generated image">
+        </div>
+
+        <!-- Блок кнопок -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <button id="randomizeButton" class="action-button secondary-button">Случайный стиль</button>
+            <button id="generateButton" class="action-button">Сгенерировать изображение</button>
+        </div>
         <div id="messageBox" class="message-box"></div>
+
+        <!-- История генераций -->
+        <div class="history-container">
+             <h2 class="text-xl font-bold text-d1b0ff mb-4">История генераций</h2>
+             <div id="historyGrid" class="history-grid"></div>
+        </div>
     </div>
 
     <script type="module">
+        // --- DATA ---
+        const optionsData = {
+            baseStyleSelect: {
+                "Фотореализм (живописный)": "photorealistic, painterly",
+                "Аниме (детализированный)": "highly detailed digital painting, anime-inspired",
+                "Мультфильм (яркий)": "vibrant digital illustration, cartoon style",
+                "Концепт-арт": "concept art",
+                "Нуар": "film noir style"
+            },
+            lightingStyleSelect: {
+                "Драматическое": "dramatic lighting, cinematic",
+                "Мягкое, неземное": "soft, ethereal lighting",
+                "Кьяроскуро (контрастное)": "chiaroscuro, high contrast",
+                "Яркое, дневное": "bright, daylight"
+            },
+            compositionSelect: {
+                "(По умолчанию)": "",
+                "Портрет (крупный план)": "close-up portrait",
+                "В полный рост": "full-body shot",
+                "Пейзаж": "landscape",
+                "Динамичная сцена": "dynamic action scene",
+                "Голландский угол": "dutch angle shot"
+            },
+            artistStyleSelect: {
+                "(Нет)": "",
+                "Современные/Цифровые": {
+                    "Greg Rutkowski": "in the style of Greg Rutkowski", "WLOP": "in the style of WLOP", "Artgerm": "in the style of Artgerm", "Syd Mead": "in the style of Syd Mead", "Ruan Jia": "in the style of Ruan Jia", "Maciej Kuciara": "in the style of Maciej Kuciara", "Loish": "in the style of Loish", "Sam Yang (SamDoesArts)": "in the style of Sam Yang (SamDoesArts)"
+                },
+                "Классики/Модерн": {
+                    "Leonardo da Vinci": "in the style of Leonardo da Vinci", "Rembrandt": "in the style of Rembrandt", "Van Gogh": "in the style of Van Gogh", "Claude Monet": "in the style of Claude Monet", "Sandro Botticelli": "in the style of Sandro Botticelli", "Léon Comerre": "in the style of Léon Comerre", "Ilya Repin": "in the style of Ilya Repin", "John Singer Sargent": "in the style of John Singer Sargent", "Alphonse Mucha": "in the style of Alphonse Mucha"
+                },
+                "Аниме/Манга": {
+                    "Hayao Miyazaki": "in the style of Hayao Miyazaki", "Makoto Shinkai": "in the style of Makoto Shinkai", "Yoshitaka Amano": "in the style of Yoshitaka Amano"
+                },
+                "Сюрреалисты/Фантасты": {
+                    "Salvador Dalí": "in the style of Salvador Dalí", "H.R. Giger": "in the style of H.R. Giger", "Zdzisław Beksiński": "in the style of Zdzisław Beksiński"
+                }
+            },
+            genreStyleSelect: {
+                "(Нет)": "",
+                "Иконописный портрет (18-19 в.)": "19th-century Russian iconographic portrait style",
+                "Ренессанс": "Renaissance painting",
+                "Готика": "Gothic art",
+                "Барокко": "Baroque painting",
+                "Викторианская эпоха": "Victorian era style",
+                "Арт-деко": "Art Deco",
+                "Сюрреализм": "Surrealism",
+                "Киберпанк": "Cyberpunk",
+                "Стимпанк": "Steampunk",
+                "Дизельпанк": "Dieselpunk"
+            },
+            materialSelect: {
+                "(Нет)": "",
+                "Масло": "oil painting",
+                "Акварель": "watercolor painting",
+                "Гуашь": "gouache painting",
+                "Тушь": "ink drawing",
+                "Карандашный эскиз": "pencil sketch",
+                "Рисунок углем": "charcoal drawing",
+                "Восковые мелки": "wax crayon drawing"
+            },
+            colorPaletteSelect: {
+                 "(Нет)": "",
+                "Пастельная": "pastel color palette",
+                "Теплая": "warm color palette",
+                "Холодная": "cold color palette",
+                "Монохромная": "monochrome"
+            },
+            atmosphereSelect: {
+                "(Нет)": "",
+                "Мягкое свечение": "soft glow",
+                "Легкая дымка/туман": "light mist, haze",
+                "Парящие искры/угольки": "floating embers, sparks",
+                "Пылинки в воздухе": "dust particles in the air",
+                "Волшебные искры": "magic sparkles"
+            },
+            cameraSelect: {
+                "(Нет)": "",
+                "Портретный объектив (85mm)": "85mm portrait lens",
+                "Широкоугольный объектив (24mm)": "24mm wide-angle lens",
+                "Макросъемка": "macro shot"
+            },
+            effectSelect: {
+                "(Нет)": "",
+                "Золото/серебро (сусальное)": "with gold and silver leaf details",
+                "Потрескавшаяся краска (под старину)": "cracked paint, aged portrait",
+                "Блики линз": "lens flare",
+                "Размытие в движении": "motion blur",
+                "Зернистость пленки": "film grain",
+                "Виньетка": "vignette",
+                "Сел-шейдинг (мультяшный)": "cel shading",
+                "Глитч-эффект": "glitch effect",
+                "Хроматическая аберрация": "chromatic aberration",
+                "Боке": "bokeh",
+                "Двойная экспозиция": "double exposure"
+            },
+            aspectRatioSelect: {
+                "1:1 (Квадрат)": "",
+                "16:9 (Альбом)": "16:9 aspect ratio",
+                "9:16 (Портрет)": "9:16 aspect ratio"
+            }
+        };
+
+        const masterStyles = {
+            "(Пользовательский)": {},
+            "Niji Anime": {
+                baseStyleSelect: "highly detailed digital painting, anime-inspired",
+                lightingStyleSelect: "dramatic lighting, cinematic",
+                artistStyleSelect: "in the style of Makoto Shinkai",
+                colorPaletteSelect: "warm color palette",
+                atmosphereSelect: "soft glow",
+                cameraSelect: "85mm portrait lens",
+                effectSelect: "bokeh"
+            },
+            "Кинематографический V6": {
+                baseStyleSelect: "photorealistic, painterly",
+                lightingStyleSelect: "dramatic lighting, cinematic",
+                artistStyleSelect: "",
+                colorPaletteSelect: "cold color palette",
+                atmosphereSelect: "light mist, haze",
+                cameraSelect: "85mm portrait lens",
+                effectSelect: "film grain"
+            },
+            "Мрачное фэнтези": {
+                baseStyleSelect: "concept art",
+                lightingStyleSelect: "chiaroscuro, high contrast",
+                artistStyleSelect: "in the style of Zdzisław Beksiński",
+                genreStyleSelect: "Gothic art",
+                materialSelect: "oil painting",
+                colorPaletteSelect: "monochrome",
+                atmosphereSelect: "floating embers, sparks",
+                effectSelect: "cracked paint, aged portrait"
+            }
+        };
+
+        // --- DOM Elements ---
+        const masterStyleSelect = document.getElementById('masterStyleSelect');
+        const allSelects = Object.keys(optionsData).map(id => document.getElementById(id));
+        
         const generateButton = document.getElementById('generateButton');
-        const resetPromptButton = document.getElementById('resetPromptButton');
+        const randomizeButton = document.getElementById('randomizeButton');
+        const savePresetButton = document.getElementById('savePresetButton');
+        const presetSelect = document.getElementById('presetSelect');
+        const presetNameInput = document.getElementById('presetNameInput');
+        const copyPromptButton = document.getElementById('copyPromptButton');
+        
+        const descriptionInput = document.getElementById('descriptionInput');
+        const negativePromptInput = document.getElementById('negativePromptInput');
+        
         const generatedImage = document.getElementById('generatedImage');
         const loadingSpinner = document.getElementById('loadingSpinner');
-        const imageContainer = document.getElementById('imageContainer');
         const messageBox = document.getElementById('messageBox');
-        const promptInput = document.getElementById('promptInput');
         const apiKeyInput = document.getElementById('apiKeyInput');
+        const historyGrid = document.getElementById('historyGrid');
 
-        // Default prompt for Agrath's human form
-        const defaultAgrathPrompt = `
-            A tall male human, appearing like an Italian or a Spaniard.
-            He has short, straight black locks of hair.
-            His eyes are brown, almost amber, with a cut that makes them seem slightly squinted and sly.
-            He has sensual lips.
-            He can summon dark, viscous tentacles from his limbs or transform his fingers into them.
-            The setting should be subtle and unassuming, blending into an ordinary human environment.
-            Focus on his human features, with a hint of something unusual or unsettling in his expression.
-            High detail, realistic, portrait, dark fantasy.
-        `;
+        // --- Constants ---
+        const PRESETS_KEY = 'imageGeneratorPresets';
+        const HISTORY_KEY = 'imageGeneratorHistory';
+        const MAX_HISTORY_ITEMS = 5;
 
-        // Set the default prompt when the page loads
-        promptInput.value = defaultAgrathPrompt.trim();
-
-        // Function to display messages
+        // --- Functions ---
         function showMessage(message, type = 'info') {
             messageBox.textContent = message;
             messageBox.style.display = 'block';
-            if (type === 'error') {
-                messageBox.style.backgroundColor = '#880000';
-                messageBox.style.color = '#ffcccc';
-            } else {
-                messageBox.style.backgroundColor = '#4a005f';
-                messageBox.style.color = '#d1b0ff';
+            messageBox.style.backgroundColor = type === 'error' ? '#880000' : '#4a005f';
+            messageBox.style.color = type === 'error' ? '#ffcccc' : '#d1b0ff';
+        }
+
+        function populateSelect(select, data) {
+            for (const key in data) {
+                if (typeof data[key] === 'object') {
+                    const optgroup = document.createElement('optgroup');
+                    optgroup.label = key;
+                    for (const subKey in data[key]) {
+                        const option = document.createElement('option');
+                        option.textContent = subKey;
+                        option.value = data[key][subKey];
+                        optgroup.appendChild(option);
+                    }
+                    select.appendChild(optgroup);
+                } else {
+                    const option = document.createElement('option');
+                    option.textContent = key;
+                    option.value = data[key];
+                    select.appendChild(option);
+                }
+            }
+        }
+        
+        function populateMasterStyles() {
+            for(const name in masterStyles) {
+                const option = document.createElement('option');
+                option.textContent = name;
+                option.value = name;
+                masterStyleSelect.appendChild(option);
+            }
+        }
+        
+        function applyMasterStyle() {
+            const styleName = masterStyleSelect.value;
+            const styleSettings = masterStyles[styleName];
+
+            if (!styleSettings) return;
+
+            // Reset all selects to default before applying
+            allSelects.forEach(select => {
+                if (select) select.selectedIndex = 0;
+            });
+
+            for (const selectId in styleSettings) {
+                const selectElement = document.getElementById(selectId);
+                const valueToSet = styleSettings[selectId];
+                if (selectElement && valueToSet !== undefined) {
+                    selectElement.value = valueToSet;
+                }
+            }
+             showMessage(`Мастер-стиль "${styleName}" применен.`, 'info');
+        }
+
+        function buildPrompt() {
+            const description = descriptionInput.value.trim();
+            if (!description) return null;
+
+            const negativePrompt = negativePromptInput.value.trim();
+            const promptParts = [description];
+            allSelects.forEach(select => {
+                if (select && select.value) promptParts.push(select.value);
+            });
+            
+            let finalPrompt = promptParts.filter(p => p).join(', '); // filter out empty strings
+            if (negativePrompt) {
+                finalPrompt += `. Negative prompt: ${negativePrompt}`;
+            }
+            return finalPrompt;
+        }
+
+        function savePreset() {
+            const name = presetNameInput.value.trim();
+            if (!name) {
+                showMessage('Пожалуйста, введите название для пресета.', 'error');
+                return;
+            }
+            const presets = JSON.parse(localStorage.getItem(PRESETS_KEY) || '{}');
+            const newPreset = {};
+            allSelects.forEach(select => newPreset[select.id] = select.value);
+            presets[name] = newPreset;
+            localStorage.setItem(PRESETS_KEY, JSON.stringify(presets));
+            presetNameInput.value = '';
+            loadPresets();
+            showMessage(`Пресет "${name}" сохранен!`, 'success');
+        }
+
+        function loadPresets() {
+            const presets = JSON.parse(localStorage.getItem(PRESETS_KEY) || '{}');
+            presetSelect.innerHTML = '<option value="">Выберите пресет...</option>';
+            for (const name in presets) {
+                const option = document.createElement('option');
+                option.value = name;
+                option.textContent = name;
+                presetSelect.appendChild(option);
             }
         }
 
-        // Event listener for the generate button
-        generateButton.addEventListener('click', async () => {
-            const prompt = promptInput.value.trim();
-            const apiKey = apiKeyInput.value.trim(); // Get API key from input, if provided
+        function applyPreset() {
+            const name = presetSelect.value;
+            if (!name) return;
+            const presets = JSON.parse(localStorage.getItem(PRESETS_KEY) || '{}');
+            const selectedPreset = presets[name];
+            if (selectedPreset) {
+                allSelects.forEach(select => {
+                    if (select && selectedPreset[select.id]) select.value = selectedPreset[select.id];
+                });
+                masterStyleSelect.value = "(Пользовательский)";
+                showMessage(`Пресет "${name}" загружен.`, 'info');
+            }
+        }
 
-            if (!prompt) {
-                showMessage("Пожалуйста, введите промпт для генерации изображения.", "error");
+        function randomizeStyles() {
+            allSelects.forEach(select => {
+                const options = select.querySelectorAll('option');
+                if (options.length > 1) {
+                    const randomIndex = Math.floor(Math.random() * options.length);
+                    select.selectedIndex = randomIndex;
+                }
+            });
+            masterStyleSelect.value = "(Пользовательский)";
+            showMessage('Стили выбраны случайным образом!', 'info');
+        }
+
+        function saveToHistory(imageDataUrl, settings) {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                const thumbWidth = 150;
+                const scale = thumbWidth / img.width;
+                canvas.width = thumbWidth;
+                canvas.height = img.height * scale;
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                
+                const thumbnailUrl = canvas.toDataURL('image/jpeg', 0.7);
+
+                let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+                history.unshift({ image: thumbnailUrl, settings: settings });
+                
+                if (history.length > MAX_HISTORY_ITEMS) {
+                    history = history.slice(0, MAX_HISTORY_ITEMS);
+                }
+
+                try {
+                    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+                } catch (e) {
+                    console.error("Could not save to history, storage might be full.", e);
+                    showMessage('Не удалось сохранить историю, хранилище может быть переполнено.', 'error');
+                } finally {
+                    loadHistory();
+                }
+            };
+            img.onerror = () => {
+                console.error("Could not load image to create thumbnail for history.");
+                loadHistory();
+            };
+            img.src = imageDataUrl;
+        }
+
+        function loadHistory() {
+            const history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+            historyGrid.innerHTML = '';
+            history.forEach(item => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                historyItem.innerHTML = `<img src="${item.image}" alt="Generated history image">`;
+                historyItem.addEventListener('click', () => {
+                    applyPresetFromHistory(item.settings);
+                    showMessage('Настройки из истории загружены.', 'info');
+                });
+                historyGrid.appendChild(historyItem);
+            });
+        }
+        
+        function applyPresetFromHistory(settings) {
+             allSelects.forEach(select => {
+                if (select && settings.styles[select.id]) select.value = settings.styles[select.id];
+            });
+            descriptionInput.value = settings.description;
+            negativePromptInput.value = settings.negativePrompt;
+            masterStyleSelect.value = "(Пользовательский)";
+        }
+
+        // --- Main Generation Logic ---
+        async function generateImage() {
+            const finalPrompt = buildPrompt();
+            if (!finalPrompt) {
+                showMessage("Пожалуйста, введите описание персонажа и сцены.", "error");
                 return;
             }
 
-            generatedImage.style.display = 'none'; // Hide image
-            loadingSpinner.style.display = 'block'; // Show spinner
-            generateButton.disabled = true; // Disable button
-            resetPromptButton.disabled = true; // Disable reset button
-            messageBox.style.display = 'none'; // Hide any previous messages
+            const apiKey = apiKeyInput.value.trim();
+            
+            console.log("Final Prompt:", finalPrompt);
+
+            setLoadingState(true);
 
             try {
-                // Use the user-provided API key, or fallback to the empty string for Canvas runtime
                 const effectiveApiKey = apiKey === "" ? "" : apiKey;
-                const payload = { instances: { prompt: prompt }, parameters: { "sampleCount": 1 } };
+                const payload = { 
+                    instances: [{ prompt: finalPrompt }], 
+                    parameters: { "sampleCount": 1 } 
+                };
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${effectiveApiKey}`;
 
                 const response = await fetch(apiUrl, {
@@ -233,45 +698,106 @@
                     body: JSON.stringify(payload)
                 });
 
+                if (!response.ok) {
+                    let errorMsg = `Ошибка сервера: ${response.status} ${response.statusText}`;
+                    if (response.status === 401) {
+                         errorMsg = "Ошибка аутентификации (401). Если вы используете свой ключ, проверьте его. Если поле для ключа пустое, возможно, возникла временная проблема с сервисом.";
+                    } else {
+                        try {
+                            const errorData = await response.json();
+                            if (errorData && errorData.error && errorData.error.message) {
+                                errorMsg = errorData.error.message;
+                            }
+                        } catch (e) {
+                            // Keep the original status text error if parsing fails
+                        }
+                    }
+                    throw new Error(errorMsg);
+                }
+
                 const result = await response.json();
 
                 if (result.predictions && result.predictions.length > 0 && result.predictions[0].bytesBase64Encoded) {
                     const imageUrl = `data:image/png;base64,${result.predictions[0].bytesBase64Encoded}`;
                     generatedImage.src = imageUrl;
-                    generatedImage.onload = () => {
-                        loadingSpinner.style.display = 'none';
-                        generatedImage.style.display = 'block';
-                        generateButton.disabled = false;
-                        resetPromptButton.disabled = false;
-                        showMessage("Изображение успешно сгенерировано!", "success");
+                    generatedImage.style.display = 'block';
+                    
+                    const currentSettings = {
+                        styles: {},
+                        description: descriptionInput.value.trim(),
+                        negativePrompt: negativePromptInput.value.trim(),
                     };
-                    generatedImage.onerror = () => {
-                        loadingSpinner.style.display = 'none';
-                        generateButton.disabled = false;
-                        resetPromptButton.disabled = false;
-                        showMessage("Не удалось загрузить изображение. Попробуйте еще раз.", "error");
-                    };
+                    allSelects.forEach(s => currentSettings.styles[s.id] = s.value);
+                    saveToHistory(imageUrl, currentSettings);
+                    
+                    showMessage("Изображение успешно сгенерировано!", "success");
                 } else {
-                    loadingSpinner.style.display = 'none';
-                    generateButton.disabled = false;
-                    resetPromptButton.disabled = false;
-                    showMessage("Не удалось сгенерировать изображение. Пожалуйста, попробуйте еще раз. Возможно, API ключ недействителен или проблема с запросом.", "error");
-                    console.error('Image generation failed:', result);
+                    throw new Error("Ответ API не содержит изображения.");
                 }
             } catch (error) {
-                loadingSpinner.style.display = 'none';
-                generateButton.disabled = false;
-                resetPromptButton.disabled = false;
-                showMessage("Произошла ошибка при генерации изображения. Пожалуйста, проверьте подключение к Интернету или API ключ.", "error");
+                showMessage(`Ошибка: ${error.message}`, "error");
                 console.error('Error generating image:', error);
+            } finally {
+                setLoadingState(false);
             }
-        });
+        }
+        
+        function setLoadingState(isLoading) {
+             loadingSpinner.style.display = isLoading ? 'block' : 'none';
+             if(isLoading) generatedImage.style.display = 'none';
+             generateButton.disabled = isLoading;
+             randomizeButton.disabled = isLoading;
+        }
 
-        // Event listener for the reset prompt button
-        resetPromptButton.addEventListener('click', () => {
-            promptInput.value = defaultAgrathPrompt.trim();
-            showMessage("Промпт сброшен до значения по умолчанию.", "info");
-        });
+        // --- Event Listeners & Initialization ---
+        function initialize() {
+            populateMasterStyles();
+            Object.keys(optionsData).forEach(id => {
+                const select = document.getElementById(id);
+                if (select) { 
+                    populateSelect(select, optionsData[id]);
+                }
+            });
+
+            masterStyleSelect.addEventListener('change', applyMasterStyle);
+            generateButton.addEventListener('click', generateImage);
+            savePresetButton.addEventListener('click', savePreset);
+            presetSelect.addEventListener('change', applyPreset);
+            randomizeButton.addEventListener('click', randomizeStyles);
+            copyPromptButton.addEventListener('click', () => {
+                const prompt = buildPrompt();
+                if (prompt) {
+                    const textArea = document.createElement("textarea");
+                    textArea.value = prompt;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    try {
+                        document.execCommand('copy');
+                        showMessage('Промпт скопирован в буфер обмена!', 'info');
+                    } catch (err) {
+                        showMessage('Не удалось скопировать промпт.', 'error');
+                    }
+                    document.body.removeChild(textArea);
+                } else {
+                    showMessage('Нечего копировать. Введите описание.', 'error');
+                }
+            });
+            
+            // Сброс на "Пользовательский", если меняется любой другой селект
+            allSelects.forEach(select => {
+                if(select) {
+                    select.addEventListener('change', () => {
+                        masterStyleSelect.value = "(Пользовательский)";
+                    });
+                }
+            });
+
+            loadPresets();
+            loadHistory();
+        }
+
+        initialize();
     </script>
 </body>
 </html>
+
